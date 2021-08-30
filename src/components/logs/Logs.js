@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { getLogs } from '../../actions/logActions';
 
- const Logs = ( { log : {logs , loading } , getLogs } ) => {
+ const Logs = ( { log : {logs , loading } , filtered , getLogs } ) => {
 
     useEffect(() => {
         getLogs();
@@ -14,6 +14,8 @@ import { getLogs } from '../../actions/logActions';
 
     if(loading || logs === null) {
         return <Preloader />
+    } else if (!loading && logs.length === 0) {
+        return <h4> No Logs to Show </h4>
     }
 
     return (
@@ -21,19 +23,24 @@ import { getLogs } from '../../actions/logActions';
             <li className="collection-header">
                 <h4 className="center" >System Logs</h4>
             </li>
-            {!loading && logs.length === 0 ? (<p className="center"> No Logs to show ...</p>): (
-                logs.map(log => <LogItem log={log} key={log.id} /> )
-            )}
+            { filtered !== null ?
+              filtered.map( log => <LogItem log={log} key={log.id} />)
+             :
+              logs.map( log => <LogItem log={log} key={log.id} /> )
+            
+           }
         </ul>
     )
 }
 
 Logs.propTypes = {
-    log: PropTypes.object.isRequired
+    log: PropTypes.object.isRequired,
+    filtered: PropTypes.object.isRequired
 }
 
 const mapStateToProps = state => ({
-    log: state.log
+    log: state.log,
+    filtered: state.log.filtered
 });
 
 export default connect(
